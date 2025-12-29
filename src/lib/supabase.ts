@@ -1,9 +1,15 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+let supabase: SupabaseClient | null = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+}
+
+export { supabase };
 
 export interface Inquiry {
   id: number;
@@ -15,6 +21,9 @@ export interface Inquiry {
 }
 
 export async function createInquiry(name: string, phone: string, message: string): Promise<Inquiry | null> {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized');
+  }
   const { data, error } = await supabase
     .from('inquiries')
     .insert([{ name, phone, message }])
@@ -30,6 +39,9 @@ export async function createInquiry(name: string, phone: string, message: string
 }
 
 export async function getAllInquiries(): Promise<Inquiry[]> {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized');
+  }
   const { data, error } = await supabase
     .from('inquiries')
     .select('*')
@@ -44,6 +56,9 @@ export async function getAllInquiries(): Promise<Inquiry[]> {
 }
 
 export async function markAsRead(id: number): Promise<void> {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized');
+  }
   const { error } = await supabase
     .from('inquiries')
     .update({ is_read: true })
@@ -56,6 +71,9 @@ export async function markAsRead(id: number): Promise<void> {
 }
 
 export async function deleteInquiry(id: number): Promise<void> {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized');
+  }
   const { error } = await supabase
     .from('inquiries')
     .delete()
