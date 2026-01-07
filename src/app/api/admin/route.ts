@@ -42,6 +42,54 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, status } = body;
+    const password = request.headers.get("x-admin-password");
+
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword || password !== adminPassword) {
+      return NextResponse.json(
+        { error: "비밀번호가 일치하지 않습니다." },
+        { status: 401 }
+      );
+    }
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { error: "ID와 상태가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await supabase
+      .from("contacts")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Supabase update error:", error);
+      return NextResponse.json(
+        { error: "상태 업데이트에 실패했습니다." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "상태가 업데이트되었습니다." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Admin PATCH API error:", error);
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

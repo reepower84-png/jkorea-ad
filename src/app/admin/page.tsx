@@ -9,6 +9,7 @@ interface Contact {
   phone: string;
   message: string;
   created_at: string;
+  status: "대기중" | "연락완료" | "상담완료";
 }
 
 export default function AdminPage() {
@@ -67,6 +68,44 @@ export default function AdminPage() {
       }
     } catch {
       alert("서버 오류가 발생했습니다.");
+    }
+  };
+
+  const handleStatusChange = async (id: number, newStatus: Contact["status"]) => {
+    try {
+      const response = await fetch("/api/admin", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": storedPassword,
+        },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+
+      if (response.ok) {
+        setContacts(
+          contacts.map((c) =>
+            c.id === id ? { ...c, status: newStatus } : c
+          )
+        );
+      } else {
+        alert("상태 변경에 실패했습니다.");
+      }
+    } catch {
+      alert("서버 오류가 발생했습니다.");
+    }
+  };
+
+  const getStatusColor = (status: Contact["status"]) => {
+    switch (status) {
+      case "대기중":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/50";
+      case "연락완료":
+        return "bg-blue-500/20 text-blue-400 border-blue-500/50";
+      case "상담완료":
+        return "bg-green-500/20 text-green-400 border-green-500/50";
+      default:
+        return "bg-slate-500/20 text-slate-400 border-slate-500/50";
     }
   };
 
@@ -185,6 +224,7 @@ export default function AdminPage() {
                     <th>이름</th>
                     <th>연락처</th>
                     <th>상담문의</th>
+                    <th>상태</th>
                     <th className="rounded-tr-2xl">관리</th>
                   </tr>
                 </thead>
@@ -198,6 +238,24 @@ export default function AdminPage() {
                       <td className="whitespace-nowrap">{contact.phone}</td>
                       <td className="max-w-md">
                         <div className="line-clamp-3">{contact.message}</div>
+                      </td>
+                      <td>
+                        <select
+                          value={contact.status || "대기중"}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              contact.id,
+                              e.target.value as Contact["status"]
+                            )
+                          }
+                          className={`px-3 py-2 rounded-lg border cursor-pointer transition-colors ${getStatusColor(
+                            contact.status || "대기중"
+                          )}`}
+                        >
+                          <option value="대기중">대기중</option>
+                          <option value="연락완료">연락완료</option>
+                          <option value="상담완료">상담완료</option>
+                        </select>
                       </td>
                       <td>
                         <button
@@ -232,8 +290,26 @@ export default function AdminPage() {
                 </button>
               </div>
               <div className="text-slate-300 mb-4">{contact.message}</div>
-              <div className="text-sm text-slate-500">
-                {formatDate(contact.created_at)}
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-slate-500">
+                  {formatDate(contact.created_at)}
+                </div>
+                <select
+                  value={contact.status || "대기중"}
+                  onChange={(e) =>
+                    handleStatusChange(
+                      contact.id,
+                      e.target.value as Contact["status"]
+                    )
+                  }
+                  className={`px-3 py-1 rounded-lg border text-sm cursor-pointer transition-colors ${getStatusColor(
+                    contact.status || "대기중"
+                  )}`}
+                >
+                  <option value="대기중">대기중</option>
+                  <option value="연락완료">연락완료</option>
+                  <option value="상담완료">상담완료</option>
+                </select>
               </div>
             </div>
           ))}

@@ -213,3 +213,13 @@ body {
 .admin-table tr:hover {
   background: rgba(255, 255, 255, 0.05);
 }
+
+.admin-table select {
+  background-color: #1e293b;
+}
+
+.admin-table select option {
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 8px;
+}
