@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // Service data
 const services = [
@@ -70,6 +70,8 @@ const stats = [
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -77,14 +79,91 @@ export default function Home() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const sectionsRef = useRef<{ [key: string]: IntersectionObserverEntry }>({});
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
+  // Close mobile menu when clicking outside or scrolling
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleScroll = () => {
+      setIsMobileMenuOpen(false);
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isMobileMenuOpen]);
+
+  // Intersection Observer for active section detection
+  useEffect(() => {
+    const sectionIds = ["services", "why-us", "reviews"];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          sectionsRef.current[entry.target.id] = entry;
+        });
+
+        // Find the section that is most visible
+        const visibleSections = sectionIds.filter(
+          (id) => sectionsRef.current[id]?.isIntersecting
+        );
+
+        if (visibleSections.length > 0) {
+          // Get the section with highest intersection ratio
+          const mostVisible = visibleSections.reduce((prev, curr) => {
+            const prevRatio = sectionsRef.current[prev]?.intersectionRatio || 0;
+            const currRatio = sectionsRef.current[curr]?.intersectionRatio || 0;
+            return currRatio > prevRatio ? curr : prev;
+          });
+          setActiveSection(mostVisible);
+        } else {
+          setActiveSection("");
+        }
+      },
+      {
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+        rootMargin: "-80px 0px -20% 0px",
+      }
+    );
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToSection = (sectionId: string) => {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    setIsMobileMenuOpen(false);
+  };
+
   const scrollToForm = () => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const navItems = [
+    { name: "상품소개", id: "services" },
+    { name: "운영 시스템", id: "why-us" },
+    { name: "성공 사례", id: "reviews" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +195,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
+      <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -124,12 +203,82 @@ export default function Home() {
           >
             종합광고
           </button>
-          <button
-            onClick={scrollToForm}
-            className="btn-primary px-4 sm:px-6 py-2 rounded-full text-white text-sm sm:text-base font-medium"
-          >
-            무료 상담
-          </button>
+
+          {/* Desktop Navigation Menu */}
+          <div className="hidden md:flex items-center gap-8">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`font-medium transition-all duration-300 relative ${
+                  activeSection === item.id
+                    ? "text-white"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                {item.name}
+                {activeSection === item.id && (
+                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Desktop CTA Button */}
+            <button
+              onClick={scrollToForm}
+              className="hidden md:block btn-primary px-4 sm:px-6 py-2 rounded-full text-white text-sm sm:text-base font-medium"
+            >
+              무료 상담
+            </button>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="메뉴 열기"
+            >
+              <span className={`w-5 h-0.5 bg-white transition-all duration-300 ${isMobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
+              <span className={`w-5 h-0.5 bg-white transition-all duration-300 ${isMobileMenuOpen ? "opacity-0" : ""}`} />
+              <span className={`w-5 h-0.5 bg-white transition-all duration-300 ${isMobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Panel */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            isMobileMenuOpen ? "max-h-64 border-t border-white/10" : "max-h-0"
+          }`}
+        >
+          <div className="px-4 py-4 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${
+                  activeSection === item.id
+                    ? "bg-white/10 text-white"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <span className="font-medium">{item.name}</span>
+                {activeSection === item.id && (
+                  <span className="ml-2 text-xs text-indigo-400">현재 위치</span>
+                )}
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                scrollToForm();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full btn-primary px-4 py-3 rounded-xl text-white font-medium mt-2"
+            >
+              무료 상담 신청
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -260,7 +409,7 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-16 sm:py-32 relative">
+      <section id="why-us" className="py-16 sm:py-32 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-950/30 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <div className="text-center mb-10 sm:mb-16">
@@ -307,6 +456,91 @@ export default function Home() {
                 <br />
                 <span className="text-white">단 하나의 광고회사.&rdquo;</span>
               </p>
+            </div>
+          </div>
+
+          {/* Customer Reviews */}
+          <div id="reviews" className="mt-16 sm:mt-24 scroll-mt-24">
+            {/* Satisfaction Badge */}
+            <div className="text-center mb-10 sm:mb-12">
+              <div className="inline-flex items-center gap-3 glass-effect rounded-full px-6 py-3">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-xl sm:text-2xl font-bold gradient-text">98%</span>
+                <span className="text-slate-300 text-sm sm:text-base">고객 만족도</span>
+              </div>
+            </div>
+
+            {/* Review Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              {[
+                {
+                  name: "김OO 대표",
+                  business: "인테리어 업체",
+                  review: "다른 광고회사 여러 곳 써봤는데, 여기처럼 꼼꼼하게 관리해주는 곳은 처음이에요. 광고비 대비 문의가 3배 이상 늘었습니다.",
+                  gradient: "from-indigo-500 to-purple-500",
+                },
+                {
+                  name: "이OO 원장",
+                  business: "피부과 의원",
+                  review: "전담 매니저분이 매주 리포트 보내주시고, 성과가 안 나오면 바로 전략을 수정해주셔서 믿고 맡기고 있습니다.",
+                  gradient: "from-cyan-500 to-blue-500",
+                },
+                {
+                  name: "박OO 사장",
+                  business: "음식점 프랜차이즈",
+                  review: "당근마켓 광고로 동네 단골 손님이 확 늘었어요. 지역 타겟팅이 정말 효과적이더라고요. 강력 추천합니다!",
+                  gradient: "from-orange-500 to-pink-500",
+                },
+              ].map((review, index) => (
+                <div
+                  key={index}
+                  className="relative group"
+                >
+                  {/* Gradient Border */}
+                  <div className={`absolute -inset-0.5 bg-gradient-to-r ${review.gradient} rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500`} />
+
+                  {/* Card Content */}
+                  <div className="relative bg-slate-900/90 rounded-2xl p-6 sm:p-8 h-full border border-white/10 hover:border-white/20 transition-all duration-300">
+                    {/* Quote Icon */}
+                    <div className={`absolute -top-4 -left-2 text-5xl sm:text-6xl font-serif bg-gradient-to-r ${review.gradient} bg-clip-text text-transparent opacity-50`}>
+                      &ldquo;
+                    </div>
+
+                    {/* Stars */}
+                    <div className="flex items-center gap-1 mb-4 pt-2">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+
+                    {/* Review Text */}
+                    <p className="text-slate-200 text-sm sm:text-base mb-6 leading-relaxed font-medium">
+                      {review.review}
+                    </p>
+
+                    {/* Author Info */}
+                    <div className={`border-t border-gradient-to-r ${review.gradient} pt-4 mt-auto`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${review.gradient} flex items-center justify-center text-white font-bold text-sm`}>
+                          {review.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">{review.name}</p>
+                          <p className="text-sm text-slate-400">{review.business}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
