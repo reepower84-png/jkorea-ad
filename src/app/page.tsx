@@ -57,7 +57,7 @@ const services = [
       { name: "인바운드", desc: "광고로 들어온 고객 즉시 응대·상담" },
       { name: "아웃바운드", desc: "가망·재접촉 고객 대상 확정 고객만 연결하는 프리미엄 약속콜" },
     ],
-    link: "https://link.inpock.co.kr/rocketcall",
+    link: "https://jcall.vercel.app/",
   },
 ];
 
@@ -679,7 +679,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    href="https://link.inpock.co.kr/rocketcall"
+                    href="https://jcall.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group"
