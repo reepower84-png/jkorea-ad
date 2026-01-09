@@ -684,7 +684,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group"
                   >
-                    <span>콜 전환 광고-로켓콜</span>
+                    <span>콜 전환 광고-콜통합센터</span>
                     <svg
                       className="w-3.5 sm:w-4 h-3.5 sm:h-4 transform group-hover:translate-x-1 transition-transform"
                       fill="none"
