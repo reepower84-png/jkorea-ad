@@ -5,6 +5,7 @@ import Benefits from '@/components/Benefits';
 import Products from '@/components/Products';
 import ContactForm from '@/components/ContactForm';
 import Footer from '@/components/Footer';
+import KakaoFloatingButton from '@/components/KakaoFloatingButton';
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <Products />
       <ContactForm />
       <Footer />
+      <KakaoFloatingButton />
     </main>
   );
 }
