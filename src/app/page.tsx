@@ -42,14 +42,6 @@ const services = [
     ],
   },
   {
-    category: "디스플레이",
-    icon: "🖥",
-    color: "from-blue-400 to-cyan-600",
-    items: [
-      { name: "디스플레이 광고", desc: "배너 및 네트워크 광고" },
-    ],
-  },
-  {
     category: "콜 전환 광고",
     icon: "📞",
     color: "from-emerald-400 to-teal-600",
@@ -58,6 +50,15 @@ const services = [
       { name: "아웃바운드", desc: "가망·재접촉 고객 대상 확정 고객만 연결하는 프리미엄 약속콜" },
     ],
     link: "https://jcall.vercel.app/",
+  },
+  {
+    category: "랜딩페이지",
+    icon: "🖥",
+    color: "from-blue-400 to-cyan-600",
+    items: [
+      { name: "전략적 랜딩페이지 제작", desc: "랜딩페이지 솔루션 제안 및 반응형 페이지 제공" },
+    ],
+    link: "https://pagehouse.vercel.app/",
   },
 ];
 
@@ -717,6 +718,22 @@ export default function Home() {
                     className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group"
                   >
                     <span>콜 위탁 창업-멀티고</span>
+                    <svg
+                      className="w-3.5 sm:w-4 h-3.5 sm:h-4 transform group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                  <a
+                    href="https://pagehouse.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group"
+                  >
+                    <span>랜딩페이지-페이지하우스</span>
                     <svg
                       className="w-3.5 sm:w-4 h-3.5 sm:h-4 transform group-hover:translate-x-1 transition-transform"
                       fill="none"
