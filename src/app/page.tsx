@@ -696,7 +696,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a
-                    href="https://link.inpock.co.kr/rocketcall"
+                    href="https://rk-intro.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-400 transition-colors group"
