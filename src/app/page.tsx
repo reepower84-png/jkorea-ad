@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 // Service data
 const services = [
@@ -59,6 +60,15 @@ const services = [
       { name: "전략적 랜딩페이지 제작", desc: "랜딩페이지 솔루션 제안 및 반응형 페이지 제공" },
     ],
     link: "https://pagehouse.vercel.app/",
+  },
+  {
+    category: "타지역 서비스",
+    icon: "📍",
+    color: "from-violet-400 to-indigo-600",
+    items: [
+      { name: "가상번호 개통", desc: "영업가능한 모든 지역에 가상번호를 개통해 사업장 확장 효과" },
+      { name: "114안내 & 지도 노출", desc: "114안내 및 네이버 지도영역에 노출" },
+    ],
   },
 ];
 
@@ -200,9 +210,15 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="text-xl sm:text-2xl font-bold gradient-text cursor-pointer hover:opacity-80 transition-opacity"
+            className="cursor-pointer hover:opacity-80 transition-opacity"
           >
-            종합광고
+            <Image
+              src="/logo-white.png"
+              alt="종합광고"
+              width={180}
+              height={60}
+              className="h-12 sm:h-14 w-auto"
+            />
           </button>
 
           {/* Desktop Navigation Menu */}
@@ -642,7 +658,15 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 sm:gap-8 text-center md:text-left">
             <div>
-              <div className="text-2xl sm:text-3xl font-bold gradient-text mb-2 sm:mb-4">종합광고</div>
+              <div className="mb-2 sm:mb-4">
+                <Image
+                  src="/logo-white.png"
+                  alt="종합광고"
+                  width={200}
+                  height={70}
+                  className="h-14 sm:h-16 w-auto"
+                />
+              </div>
               <p className="text-slate-400 text-sm sm:text-base">네이버 · 당근마켓 · SNS 종합 광고 시행사</p>
             </div>
             <button
