@@ -682,7 +682,7 @@ export default function Home() {
               <div className="text-xs sm:text-sm text-slate-500 space-y-1.5 sm:space-y-2 text-center md:text-left">
                 <p><strong className="text-slate-400">상호:</strong> 제이코리아 | <strong className="text-slate-400">대표:</strong> 이주영</p>
                 <p><strong className="text-slate-400">사업자등록번호:</strong> 278-30-01540</p>
-                <p><strong className="text-slate-400">주소:</strong> 인천광역시 계양구 오조산로57번길 15, 7층 7106호</p>
+                <p><strong className="text-slate-400">주소:</strong> 서울특별시 강남구 도곡로84길 6, B1층 25-68호</p>
               </div>
               <div className="text-xs sm:text-sm text-center md:text-left">
                 <p className="text-slate-400 font-medium mb-2 sm:mb-3">계열사</p>
