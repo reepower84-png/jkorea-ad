@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { backupFetch } from "../../../lib/inquiry-backup";
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    const discordResponse = await fetch(discordWebhookUrl, {
+    const discordResponse = await backupFetch(discordWebhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
